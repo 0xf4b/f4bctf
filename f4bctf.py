@@ -17,7 +17,7 @@ def welcome():
 
 def help(cmd=None):
     if cmd == None:
-        print """No help :)"""
+        print """No help yet :)"""
 
 if __name__ == '__main__':
     welcome()
