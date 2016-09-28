@@ -27,8 +27,8 @@ if __name__ == '__main__':
 def discrete_log():
     print """Pari/GP:
 ? znlog(h,Mod(g,p))
-%4 = 46363574342518235210803009231514833
 """
+
 class RC4:
     def __init__(self, key = None):
         self.state = list(range(256))
