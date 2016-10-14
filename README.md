@@ -6,6 +6,7 @@
 
 - RC4 class:  RC4("key").crypt("blah")
 - discrete_log(): outputs Pari/GP syntax
+- RSA_padding_oracle(n, e, bits, c0, oracle, verbose=True): RSA PKCS1.5 padding oracle attack
 
 ### Stego
 
@@ -25,3 +26,6 @@
 
 - py_get_pyc_bytecode(filename): returns a code object from a .pyc file
 - py_exec_bytecode(co, bytecode): edit the co_code of a given code object
+
+### ELF
+- elf_hash(mystr): GNU ELF function name hashing
