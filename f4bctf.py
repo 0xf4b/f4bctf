@@ -29,6 +29,9 @@ def discrete_log():
 ? znlog(h,Mod(g,p))
 """
 
+def ceil_int(a, b):
+    return a/b + (a%b != 0)
+
 class RC4:
     def __init__(self, key = None):
         self.state = list(range(256))
@@ -52,6 +55,83 @@ class RC4:
             output[i] = chr((ord(input[i]) ^ self.state[(self.state[self.x] + self.state[self.y]) & 0xFF]))
         return ''.join(output)
 
+def RSA_padding_oracle(n, e, bits, c0, oracle, verbose=True):
+    B = 2**(bits-16)
+    
+    # Find first s1
+    s1 = ceil_int(n, 3*B)
+    if verbose:
+        print "[*] Looking for s1..."
+    while True:
+        c1 = (pow(s1,e,n) * c0) % n
+        if oracle(c1):
+            break
+        s1 += 1
+    if verbose:
+        print "[+] Found s1: %d" % s1
+
+    # Find the first intervals
+    M = []
+    a = B*2
+    b = B*3 - 1
+    si = s1
+
+    for r in range(ceil_int((a*si - B*3 + 1), n), ((b*si - B*2)/n) + 1):
+        newa = max(a, ceil_int(B*2 + r*n, si))
+        newb = min(b, (B*3 - 1 + r*n) / si)
+        if newa <= newb:
+            M.append([newa, newb])
+
+    if verbose:
+        print "[*] Found %d intervals" % len(M)
+
+    # Now recursively reduce intervals
+    while True:
+        if len(M) == 1:
+            m0 = M[0]
+            a = m0[0]
+            b = m0[1]
+            print a,b
+            r = ceil_int( (b*si - B*2)*2, n)
+            found = False
+            while not found:
+                for si in range(ceil_int((B*2 + r*n), b), (B*3 - 1 + r*n)/a + 1):
+                    mi = (pow(si,e,n) * c0) % n
+                    if oracle(mi):
+                        found = True
+                        break
+                if not found:
+                    r += 1
+            if verbose:
+                print "[+] Si: %d" % si
+        elif len(M) > 1:
+            si += 1
+            while True:
+                mi = (pow(si,e,n) * c0) % n
+                if oracle(mi):
+                    break
+                si += 1
+            if verbose:
+                print "[+] Si: %d" % si
+
+        M2 = []
+        for (a,b) in M:
+            for r in range(ceil_int((a*si - B*3 + 1), n), (b*si - B*2)/n + 1):
+                newa = max(a, ceil_int(B*2 + r*n, si))
+                newb = min(b, (B*3 - 1 + r*n) / si)
+                if newa <= newb:
+                    M2.append([newa, newb])
+        
+        if len(M2) > 0:
+            M = M2
+
+        if len(M) == 1:
+            if M[0][0] == M[0][1]:
+                if verbose:
+                    print "[+] Found: %d" % M[0][0]
+                return M[0][0]
+        
+    return -1
 
 ### Stego ###
 
@@ -112,3 +192,12 @@ def py_exec_bytecode(co, bytecode):
     code = type(compile("def f(): pass", "noname", "exec"))
     code_obj = code(co.co_argcount, co.co_nlocals, co.co_stacksize,co.co_flags, bytecode, co.co_consts, co.co_names,co.co_varnames, co.co_filename, co.co_name,co.co_firstlineno, co.co_lnotab, co.co_freevars,co.co_cellvars)
     exec(code_obj)
+
+
+### ELF Stuff ###
+
+def elf_hash(mystr):
+    h = 5381
+    for x in mystr:
+        h = h*33 + ord(x)
+    return h & 0xffffffff
