@@ -6,6 +6,7 @@
 
 - RC4 class:  RC4("key").crypt("blah")
 - discrete_log(): outputs Pari/GP syntax
+- discrete_log_ecdh(): outputs Sage syntax
 - RSA_padding_oracle(n, e, bits, c0, oracle, verbose=True): RSA PKCS1.5 padding oracle attack
 
 ### Stego
