@@ -29,6 +29,28 @@ def discrete_log():
 ? znlog(h,Mod(g,p))
 """
 
+def discrete_log_ecdh():
+    print """Sage:
+sage: p=20444105256826571394...
+sage: E = EllipticCurve(GF(p),[367894248...9918684797,650136343866907...])
+sage: g=E(113701520505..., 72521...)
+sage: v1=E(5021929082392381871...,3742011...)
+
+sage: g.discrete_log(v1)
+9518829...
+
+sage: v2=E(5457510164662...,644200868...)
+
+sage: g.discrete_log(v2)
+3371528...
+
+sage: 951882...*v2
+(125391391... : 7297914... : 1)
+sage: 3371528...*v1
+(125391391... : 7297914... : 1)
+sage: 
+"""   
+
 def ceil_int(a, b):
     return a/b + (a%b != 0)
 
