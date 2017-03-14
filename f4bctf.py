@@ -6,7 +6,7 @@ from struct import pack,unpack,unpack_from
 from base64 import b64encode, b64decode
 import string
 import marshal
-from gmpy import *
+from gmpy2 import *
 
 ### Main ###
 
@@ -154,6 +154,28 @@ def RSA_padding_oracle(n, e, bits, c0, oracle, verbose=True):
                 return M[0][0]
         
     return -1
+
+def egcd(a, b):
+    if a == 0:
+        return (b, 0, 1)
+    else:
+        g, y, x = egcd(b % a, a)
+        return (g, x - (b // a) * y, y)
+
+def modinv(a, m):
+    g, x, y = egcd(a, m)
+    if g != 1:
+        raise Exception('modular inverse does not exist')
+    else:
+        return x % m
+
+def bezout(a, b):
+    if b == 0: return (a,1,0)
+    q = a // b
+    r = a % b
+    (g,u1,v1) = bezout(b,r)
+    return (g,v1,u1-q*v1) 
+
 
 ### Stego ###
 
